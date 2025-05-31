@@ -1,0 +1,4 @@
+agency-swarm>=0.1.0
+notion-client>=2.0.0
+slack-sdk>=3.20.2
+python-dotenv>=1.0.0 

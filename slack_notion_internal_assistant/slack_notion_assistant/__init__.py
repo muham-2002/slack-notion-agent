@@ -1,0 +1,1 @@
+from .slack_notion_assistant import SlackNotionAssistant 

@@ -1,0 +1,114 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Slack-Notion Internal Assistant
+
+---
+
+- **Purpose:**
+The Slack-Notion Internal Assistant enables users to query and update information in the company Notion workspace directly from Slack. It provides fast, context-aware answers to workspace questions (e.g., playbooks, project steps) and can perform safe, targeted modifications to Notion content as instructed by users. The agent is designed for internal use by VRSEN AI team members to streamline knowledge access and operational workflows, while minimizing risk of accidental data loss or unwanted changes in Notion.
+- **Communication Flows:**
+    - **Between Agents:**
+        - If extended, the agent may interact with other internal agents (e.g., for advanced workflow automation or escalation of complex requests). Shared state may include Slack message context and Notion page references.
+    - **Agent to User Communication:**
+        - The agent communicates with users via Slack messages in designated channels. It responds to direct queries and action requests, providing clear feedback and confirmation of actions taken.
+
+---
+
+## Slack-Notion Assistant Agent
+
+### **Role within the Agency**
+
+Acts as a bridge between Slack and Notion, enabling users to retrieve and update workspace knowledge efficiently and safely. Responsible for:
+
+- Answering questions about Notion content (e.g., playbooks, project steps)
+- Performing safe, targeted updates to Notion pages as instructed
+- Ensuring no accidental data loss or unwanted changes in Notion
+
+## Knowledge
+
+- VRSEN AI internal playbooks and documentation in Notion
+- Slack channel context for user queries
+
+### Tools
+
+- **NotionQueryTool:**
+    - **Description**: Retrieves specific information from Notion pages based on user queries.
+    - **Inputs**:
+        - query (str) - The user's question or information request
+    - **Validation**:
+        - Query must be non-empty and relevant to Notion workspace content
+    - **Core Functions:**
+        - Search Notion for relevant pages/blocks
+        - Extract and return concise, relevant answers
+    - **APIs**:
+        - Notion API (official MCP or custom wrapper)
+    - **Outputs**: String answer to the user's question
+    - **References**:
+        - https://github.com/vrsen-ai-solutions/Internal-Tools/tree/dev/tpm-agency/ProjectManagement/Slack-app/AIProjectManagement/AIProjectManager/tools
+        - https://github.com/vrsen-ai-solutions/Internal-Tools/tree/dev/tpm-agency/ProjectManagement/ScoperAgency/ProjectContextAgent/tools
+- **NotionUpdateTool:**
+    - **Description**: Performs safe, targeted updates to Notion pages as instructed by the user (e.g., add a step to a playbook).
+    - **Inputs**:
+        - page_id (str) - The Notion page to update
+        - update_instruction (str) - The user's modification request
+    - **Validation**:
+        - Only updates specified properties/blocks; must not overwrite unrelated content
+    - **Core Functions:**
+        - Parse user intent for update
+        - Apply update to Notion page
+        - Confirm and report changes
+    - **APIs**:
+        - Notion API (official MCP or custom wrapper)
+    - **Outputs**: Confirmation message summarizing the update
+- **SlackMCPTool:**
+    - **Description**: This tool has already been implemented and can be reused, perhaps with minor modifications.
+    - **References**:
+        - https://github.com/vrsen-ai-solutions/Internal-Tools/blob/dev/tpm-agency/ProjectManagement/ScoperAgency/ProjectContextAgent/tools/SlackMCPTool.py
+
+---
+
+# 🌐 Background:
+
+VRSEN AI needs an internal agent that enables team members to query and update Notion workspace content directly from Slack. The agent must answer questions (e.g., about playbooks or project steps) and perform safe, targeted modifications to Notion pages, without risking accidental data loss or unwanted changes. This will streamline internal knowledge access and operational workflows.
+
+## 🏆 Primary Goal:
+
+Develop a Slack bot that can answer questions based on the Notion workspace and perform safe, targeted actions on it as instructed by users.
+
+---
+
+## DOD (Definition of Done):
+
+### Fact
+
+- [ ]  The agent can answer user questions about Notion content via Slack
+- [ ]  The agent can perform targeted updates to Notion pages as instructed
+- [ ]  All updates are confirmed to the user and do not overwrite unrelated content
+- [ ]  The agent is tested both on Agencii and on Slack
+- [ ]  Any inconsistencies between Agencii and Slack testing are documented
+- [ ]  Loom video of the working agent is attached to the task and PM is notified
+
+### Feeling
+
+- [ ]  Notion data is safe from accidental loss
+- [ ]  Agent provides clear, helpful responses and confirmations
+
+### Functionality
+
+- [ ]  The agent reliably retrieves relevant Notion content in response to queries
+- [ ]  The agent performs only the requested updates, with no side effects
+- [ ]  The agent provides clear feedback and error messages for unsupported actions
+
+---
+
+## To-dos
+
+- [ ]  Implement NotionQueryTool for retrieving answers from Notion
+- [ ]  Implement NotionUpdateTool for safe, targeted Notion updates
+- [ ]  Implement SlackInterfaceTool for Slack communication
+- [ ]  Test the agent locally and on Agencii
+- [ ]  Document any inconsistencies between local and Agencii testing
+- [ ]  Attach screenshots or Loom video of the working agent and notify PM
