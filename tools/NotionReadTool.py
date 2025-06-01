@@ -1,10 +1,15 @@
 import json
 import os
+import sys
 from dotenv import load_dotenv
 from notion_client import Client
 from agency_swarm.tools import BaseTool
 from pydantic import Field, model_validator
 from typing import Any, Dict, Optional
+
+# Add parent directory to path for utils imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from utils.page_blocks_cleanup import get_blocks_recursive_clean
 from utils.db_response_cleanup import clean_notion_database_response, clean_notion_search_response
 from utils.helpers import limit_response_length
@@ -190,7 +195,7 @@ if __name__ == "__main__":
     print("\n== Query Database Test ==")
     try:
         tool = NotionReadTool(action="query_database", database_id=DATABASE_ID, page_size=5)
-        print(json.dumps(tool.run(), indent=2))
+        print(tool.run())
     except Exception as e:
         print(f"Query Database Test Error: {e}")
 
