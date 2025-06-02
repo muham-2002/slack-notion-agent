@@ -138,6 +138,55 @@ def extract_title(page: dict) -> str:
                 return "".join([t.get("plain_text", "") for t in title_items])
     return "Untitled"
 
+def get_blocks_recursive_full(block_id: str, depth: int) -> list:
+    """
+    Get blocks with FULL structure preserved for UPDATE operations.
+    This maintains all IDs, metadata, and formatting needed for Notion API updates.
+    """
+    if depth <= 0:
+        return []
+    
+    blocks_full = []
+    cursor = None
+    
+    while True:
+        try:
+            response = notion.blocks.children.list(
+                block_id=block_id,
+                start_cursor=cursor,
+                page_size=100
+            )
+        except APIResponseError as e:
+            # Return error message as a block
+            blocks_full.append({
+                "error": f"Could not access blocks for block_id {block_id}: {str(e)}"
+            })
+            return blocks_full
+        
+        for block in response.get("results", []):
+            try:
+                # Preserve FULL block structure for updates
+                full_block = block.copy()
+                
+                # Recursively get children with full structure if any
+                if block.get("has_children"):
+                    # Store children in a separate key to avoid API conflicts
+                    full_block["children_blocks"] = get_blocks_recursive_full(block["id"], depth-1)
+                
+                blocks_full.append(full_block)
+            
+            except Exception as e:
+                # Catch all to avoid breaking on unexpected block formats
+                blocks_full.append({
+                    "error": f"Error processing block {block['id']}: {str(e)}"
+                })
+        
+        if not response.get("has_more"):
+            break
+        
+        cursor = response.get("next_cursor")
+    
+    return blocks_full
 
 if __name__ == "__main__":
     # Get entire page hierarchy (3 levels deep)

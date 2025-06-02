@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 # Add parent directory to path for utils imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from utils.page_blocks_cleanup import get_blocks_recursive_clean
+from utils.page_blocks_cleanup import get_blocks_recursive_full
 from utils.db_response_cleanup import clean_notion_database_response, clean_notion_search_response
 from utils.helpers import limit_response_length
 
@@ -21,14 +21,14 @@ NOTION_CLIENT = Client(auth=os.getenv("NOTION_API_KEY"))
 
 class NotionReadTool(BaseTool):
     """
-    A tool to perform various Notion read operations: search, retrieve_page, retrieve_block,
+    A tool to perform various Notion read operations: search, retrieve_full_page, retrieve_block,
     retrieve_block_children, and query_database. Each action has specific required parameters
     that are validated automatically.
     """
     action: str = Field(
         ..., 
         description="The read action to perform",
-        enum=["search", "retrieve_page", "retrieve_block", "retrieve_block_children", "query_database"]
+        enum=["search", "retrieve_full_page", "retrieve_block", "retrieve_block_children", "query_database"]
     )
     
     # Search parameters
@@ -55,9 +55,9 @@ class NotionReadTool(BaseTool):
             if not self.query:
                 raise ValueError("query is required for search action")
         
-        elif self.action == "retrieve_page":
+        elif self.action == "retrieve_full_page":
             if not self.page_id:
-                raise ValueError("page_id is required for retrieve_page action")
+                raise ValueError("page_id is required for retrieve_full_page action")
         
         elif self.action == "retrieve_block":
             if not self.block_id:
@@ -78,7 +78,7 @@ class NotionReadTool(BaseTool):
     def run(self) -> str:
         dispatch = {
             "search": self._search,
-            "retrieve_page": self._retrieve_page,
+            "retrieve_full_page": self._retrieve_full_page,
             "retrieve_block": self._retrieve_block,
             "retrieve_block_children": self._retrieve_block_children,
             "query_database": self._query_database,
@@ -99,11 +99,12 @@ class NotionReadTool(BaseTool):
         cleaned_result = clean_notion_search_response(result)
         return limit_response_length(json.dumps(cleaned_result, indent=2))
 
-    def _retrieve_page(self) -> str:
-        # Retrieve raw page data
+
+    def _retrieve_full_page(self) -> str:
+        # Retrieve full page data
         page_data = NOTION_CLIENT.pages.retrieve(page_id=self.page_id)
-        # Use shared clean block extraction
-        blocks = get_blocks_recursive_clean(self.page_id, depth=self.depth)
+        # Use shared full block extraction
+        blocks = get_blocks_recursive_full(self.page_id, depth=self.depth)
         result = {
             "page": page_data,
             "blocks": blocks
@@ -116,7 +117,7 @@ class NotionReadTool(BaseTool):
 
     def _retrieve_block_children(self) -> str:
         # Use shared clean block extraction for children
-        result = get_blocks_recursive_clean(self.block_id, depth=self.depth)
+        result = get_blocks_recursive_full(self.block_id, depth=self.depth)
         return limit_response_length(json.dumps(result, indent=2))
 
     def _query_database(self) -> str:
@@ -164,12 +165,12 @@ if __name__ == "__main__":
     BLOCK_ID = TASKS_PAGE_ID  # Use a real block_id if available
     DATABASE_ID = RESOURCES_DB_ID
 
-    # print("\n== Search Test ==")
-    # try:
-    #     tool = NotionReadTool(action="search", query="Team Board", page_size=2)
-    #     print(tool.run())
-    # except Exception as e:
-    #     print(f"Search Test Error: {e}")
+    print("\n== Search Test ==")
+    try:
+        tool = NotionReadTool(action="search", query="How To Deploy an Agency on Cloud Run", page_size=2)
+        print(tool.run())
+    except Exception as e:
+        print(f"Search Test Error: {e}")
 
     # print("\n== Retrieve Page Test ==")
     # try:
@@ -192,12 +193,12 @@ if __name__ == "__main__":
     # except Exception as e:
     #     print(f"Retrieve Block Children Test Error: {e}")
 
-    print("\n== Query Database Test ==")
-    try:
-        tool = NotionReadTool(action="query_database", database_id=DATABASE_ID, page_size=5)
-        print(tool.run())
-    except Exception as e:
-        print(f"Query Database Test Error: {e}")
+    # print("\n== Query Database Test ==")
+    # try:
+    #     tool = NotionReadTool(action="query_database", database_id=DATABASE_ID, page_size=5)
+    #     print(tool.run())
+    # except Exception as e:
+    #     print(f"Query Database Test Error: {e}")
 
 
     # print("\n== 7. Query Database with Sort (Priority DESC) ==")

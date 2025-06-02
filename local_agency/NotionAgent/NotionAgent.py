@@ -5,6 +5,7 @@ import os
 # Add the parent directory to sys.path to access tools
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+from tools.NotionUpdateTool import NotionUpdateTool
 from tools.NotionReadTool import NotionReadTool
 
 # Create a temporary agent
@@ -14,7 +15,7 @@ class NotionAgent(Agent):
             name="NotionAgent",
             description="Specialized agent for querying and retrieving information from the VRSEN AI Notion workspace. Works under CEO direction to execute specific Notion API operations and provide comprehensive results.",
             instructions="./instructions.md",
-            tools=[NotionReadTool],
+            tools=[NotionReadTool, NotionUpdateTool],
             temperature=0.3,
             max_prompt_tokens=100000,
             model="gpt-4.1-mini"
