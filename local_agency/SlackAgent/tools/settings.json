@@ -1,0 +1,277 @@
+[
+    {
+        "id": "asst_ZXrkElMgIVIPEo75kcxIBaCg",
+        "created_at": 1748933467,
+        "description": "Temporary agent for Slack MCP queries.",
+        "instructions": "You are a Slack interface agent. Use the available Slack MCP tools to:\n\n1. If asked to list channels or operations, use the appropriate MCP tools to discover them\n2. If asked to send messages, use the messaging tools\n3. If asked to search or read, use the search/read tools\n4. Always provide clear, structured responses\n5. If channel IDs are needed but not known, first list channels to find the right ones\n6. Handle errors gracefully and suggest alternatives\n\nAvailable operations you can perform:\n- List channels and get their IDs\n- Send messages to channels\n- Read messages from channels\n- Search for messages\n- Get channel information\n- List all available Slack MCP tools\n\nRespond in a clear, structured format showing what was found or accomplished.",
+        "metadata": {},
+        "model": "gpt-4o-mini",
+        "name": "SlackAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "slack_list_channels",
+                    "description": "List public or pre-defined channels in the workspace with pagination",
+                    "parameters": {
+                        "properties": {
+                            "limit": {
+                                "anyOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": 100,
+                                "description": "Maximum number of channels to return (default 100, max 200)",
+                                "title": "Limit"
+                            },
+                            "cursor": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Pagination cursor for next page of results",
+                                "title": "Cursor"
+                            }
+                        },
+                        "type": "object",
+                        "required": []
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_post_message",
+                    "description": "Post a new message to a Slack channel",
+                    "parameters": {
+                        "properties": {
+                            "channel_id": {
+                                "description": "The ID of the channel to post to",
+                                "title": "Channel Id",
+                                "type": "string"
+                            },
+                            "text": {
+                                "description": "The message text to post",
+                                "title": "Text",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "channel_id",
+                            "text"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_reply_to_thread",
+                    "description": "Reply to a specific message thread in Slack",
+                    "parameters": {
+                        "properties": {
+                            "channel_id": {
+                                "description": "The ID of the channel containing the thread",
+                                "title": "Channel Id",
+                                "type": "string"
+                            },
+                            "thread_ts": {
+                                "description": "The timestamp of the parent message in the format '1234567890.123456'. Timestamps in the format without the period can be converted by adding the period such that 6 numbers come after it.",
+                                "title": "Thread Ts",
+                                "type": "string"
+                            },
+                            "text": {
+                                "description": "The reply text",
+                                "title": "Text",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "channel_id",
+                            "text",
+                            "thread_ts"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_add_reaction",
+                    "description": "Add a reaction emoji to a message",
+                    "parameters": {
+                        "properties": {
+                            "channel_id": {
+                                "description": "The ID of the channel containing the message",
+                                "title": "Channel Id",
+                                "type": "string"
+                            },
+                            "timestamp": {
+                                "description": "The timestamp of the message to react to",
+                                "title": "Timestamp",
+                                "type": "string"
+                            },
+                            "reaction": {
+                                "description": "The name of the emoji reaction (without ::)",
+                                "title": "Reaction",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "channel_id",
+                            "reaction",
+                            "timestamp"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_get_channel_history",
+                    "description": "Get recent messages from a channel",
+                    "parameters": {
+                        "properties": {
+                            "channel_id": {
+                                "description": "The ID of the channel",
+                                "title": "Channel Id",
+                                "type": "string"
+                            },
+                            "limit": {
+                                "anyOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": 10,
+                                "description": "Number of messages to retrieve (default 10)",
+                                "title": "Limit"
+                            }
+                        },
+                        "required": [
+                            "channel_id"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_get_thread_replies",
+                    "description": "Get all replies in a message thread",
+                    "parameters": {
+                        "properties": {
+                            "channel_id": {
+                                "description": "The ID of the channel containing the thread",
+                                "title": "Channel Id",
+                                "type": "string"
+                            },
+                            "thread_ts": {
+                                "description": "The timestamp of the parent message in the format '1234567890.123456'. Timestamps in the format without the period can be converted by adding the period such that 6 numbers come after it.",
+                                "title": "Thread Ts",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "channel_id",
+                            "thread_ts"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_get_users",
+                    "description": "Get a list of all users in the workspace with their basic profile information",
+                    "parameters": {
+                        "properties": {
+                            "cursor": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Pagination cursor for next page of results",
+                                "title": "Cursor"
+                            },
+                            "limit": {
+                                "anyOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": 100,
+                                "description": "Maximum number of users to return (default 100, max 200)",
+                                "title": "Limit"
+                            }
+                        },
+                        "type": "object",
+                        "required": []
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "slack_get_user_profile",
+                    "description": "Get detailed profile information for a specific user",
+                    "parameters": {
+                        "properties": {
+                            "user_id": {
+                                "description": "The ID of the user",
+                                "title": "User Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "user_id"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0,
+        "reasoning_effort": null
+    }
+]
