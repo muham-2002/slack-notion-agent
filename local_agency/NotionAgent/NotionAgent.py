@@ -5,8 +5,8 @@ import os
 # Add the parent directory to sys.path to access tools
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from tools.NotionUpdateTool import NotionUpdateTool
-from tools.NotionReadTool import NotionReadTool
+from tools.NotionAgent.NotionUpdateTool import NotionUpdateTool
+from tools.NotionAgent.NotionReadTool import NotionReadTool
 
 # Create a temporary agent
 class NotionAgent(Agent):
