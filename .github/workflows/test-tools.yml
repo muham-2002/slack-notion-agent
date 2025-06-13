@@ -9,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
+      NOTION_TOOL_PAGE_LENGTH: ${{ secrets.NOTION_TOOL_PAGE_LENGTH }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
