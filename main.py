@@ -7,7 +7,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-db_token = os.getenv("DB_TOKEN")
+db_token = os.getenv("APP_TOKEN")
 
 def create_endpoint(route, tool_class):
     @app.route(route, methods=['POST'], endpoint=tool_class.__name__)

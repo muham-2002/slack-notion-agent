@@ -1,5 +1,5 @@
 from agency_swarm.agents import Agent
-from .tools.SlackMCPTool import SlackMCPTool
+from tools.SlackAgent.SlackMCPTool import SlackMCPTool
 
 class SlackAgent(Agent):
     def __init__(self):

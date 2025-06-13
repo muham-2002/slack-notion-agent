@@ -43,6 +43,7 @@ class NotionReadTool(BaseTool):
     depth: Optional[int] = Field(10, description="Depth for recursive block retrieval (default: 10)")
     page_size: Optional[int] = Field(50, description="Number of items per page (default: 50)")
     start_cursor: Optional[str] = Field(None, description="Pagination cursor for continuing from previous query")
+    page_number: Optional[int] = Field(1, description="Page number for paginated output (default: 1)")
     
     # Database query parameters
     filter: Optional[Dict[str, Any]] = Field(None, description="Filter object for database queries")
@@ -97,7 +98,7 @@ class NotionReadTool(BaseTool):
         result = NOTION_CLIENT.search(**search_params)
         # Clean the search response using the new cleanup function
         cleaned_result = clean_notion_search_response(result)
-        return limit_response_length(json.dumps(cleaned_result, indent=2))
+        return limit_response_length(json.dumps(cleaned_result, indent=2), page_number=self.page_number)
 
 
     def _retrieve_full_page(self) -> str:
@@ -109,16 +110,16 @@ class NotionReadTool(BaseTool):
             "page": page_data,
             "blocks": blocks
         }
-        return limit_response_length(json.dumps(result, indent=2))
+        return limit_response_length(json.dumps(result, indent=2), page_number=self.page_number)
 
     def _retrieve_block(self) -> str:
         result = NOTION_CLIENT.blocks.retrieve(block_id=self.block_id)
-        return limit_response_length(json.dumps(result, indent=2))
+        return limit_response_length(json.dumps(result, indent=2), page_number=self.page_number)
 
     def _retrieve_block_children(self) -> str:
         # Use shared clean block extraction for children
         result = get_blocks_recursive_full(self.block_id, depth=self.depth)
-        return limit_response_length(json.dumps(result, indent=2))
+        return limit_response_length(json.dumps(result, indent=2), page_number=self.page_number)
 
     def _query_database(self) -> str:
         # Prepare query parameters
@@ -147,7 +148,7 @@ class NotionReadTool(BaseTool):
         
         # Return items plus pagination metadata
         result = {"items": cleaned_results, "items_length": len(cleaned_results), "has_more": has_more, "next_cursor": next_cursor}
-        return limit_response_length(json.dumps(result, indent=2))
+        return limit_response_length(json.dumps(result, indent=2), page_number=self.page_number)
 
 if __name__ == "__main__":
     # Inline tests for NotionReadTool - replace IDs with real ones before running
